@@ -1,6 +1,6 @@
-package collocations;
+package com.collocations;
 
-import collocations.jobs.*;
+import com.collocations.jobs.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;

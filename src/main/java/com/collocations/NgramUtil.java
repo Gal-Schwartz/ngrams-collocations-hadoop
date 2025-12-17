@@ -1,4 +1,4 @@
-package collocations;
+package com.collocations;
 
 public final class NgramUtil {
     private NgramUtil() {}

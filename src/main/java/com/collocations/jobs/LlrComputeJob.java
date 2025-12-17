@@ -1,6 +1,6 @@
-package collocations.jobs;
+package com.collocations.jobs;
 
-import collocations.LLR;
+import com.collocations.LLR;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;

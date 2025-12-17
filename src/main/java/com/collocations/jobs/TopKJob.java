@@ -1,4 +1,4 @@
-package collocations.jobs;
+package com.collocations.jobs;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;

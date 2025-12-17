@@ -1,6 +1,6 @@
-package collocations.jobs;
+package com.collocations.jobs;
 
-import collocations.NgramUtil;
+import com.collocations.NgramUtil;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.*;
