@@ -40,9 +40,14 @@ public class Job3 {
             String bigram = p[2];
             double llr;
             try { llr = Double.parseDouble(p[3]); }
-            catch (Exception e) { return; }
+            catch (Exception e) {
+                System.err.println("Job3: Failed to parse LLR from line: " + line.toString() + ". Error: " + e.getMessage());
+                ctx.getCounter("Errors", "Job3_ParseError").increment(1);
+                return; 
+            }
 
             outK.set(lang + "\t" + decade);
+            ctx.getCounter("Stats", "Map_Records_Out").increment(1);
             ctx.write(outK, new BigramScore(bigram, llr));
         }
     }
@@ -80,7 +85,10 @@ public class Job3 {
         protected void reduce(Text key, Iterable<BigramScore> values, Context ctx) throws IOException, InterruptedException {
             TopK top = new TopK(100);
             for (BigramScore v : values) top.push(v);
-            for (BigramScore s : top.sortedDesc()) ctx.write(key, s);
+            for (BigramScore s : top.sortedDesc()){
+                ctx.getCounter("Stats", "Combiner_Records_Out").increment(1);
+                ctx.write(key, s);
+            } 
         }
     }
 

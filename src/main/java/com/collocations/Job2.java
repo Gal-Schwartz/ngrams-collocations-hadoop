@@ -186,6 +186,7 @@ public class Job2 {
                         }
                     }
                 }
+                System.err.println("Job2: Finished loading NMap. Total entries loaded: " + NMap.size());
             }
 
             @Override
