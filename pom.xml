@@ -57,7 +57,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>collocations.CollocationsPipeline</mainClass>
+                            <mainClass>com.collocations.CollocationExtraction3Jobs</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
