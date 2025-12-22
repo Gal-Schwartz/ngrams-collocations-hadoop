@@ -110,7 +110,7 @@ public class Job1 {
     }
 
     /** Mapper for unigrams: emits UNI (w1=candidate) and contributes to N (via reducer side-output). */
-    public static class Job1UnigramMapper extends Mapper<Text, Text, Job1Key, Job1Val> {
+    public static class Job1UnigramMapper extends Mapper<LongWritable, Text, Job1Key, Job1Val> {
         private Stopwords stop;
 
         @Override protected void setup(Context ctx) throws IOException {
@@ -120,25 +120,36 @@ public class Job1 {
         }
 
         @Override
-        protected void map(Text unigramKey, Text value, Context ctx) throws IOException, InterruptedException {
+        protected void map(LongWritable off, Text line, Context ctx) throws IOException, InterruptedException {
             String lang = NGramUtils.inferLangFromPath(ctx.getInputSplit());
-            NGramUtils.YearCount yc = NGramUtils.parseYearCount(value);
-            if (yc == null || yc.count <= 0) return;
+            String[] p = line.toString().split("\t");
+            if (p.length < 3) return;
 
-            int decade = NGramUtils.toDecade(yc.year);
-            String w = NGramUtils.cleanToken(unigramKey.toString());
+            String wRaw = p[0];
+            int year;
+            long occ;
+            try {
+                year = Integer.parseInt(p[1].trim());
+                occ = Long.parseLong(p[2].trim());
+            } catch (Exception e) {
+                return;
+            }
+            if (occ <= 0) return;
+
+            int decade = NGramUtils.toDecade(year);
+            String w = NGramUtils.cleanToken(wRaw);
             if (w.isEmpty()) return;
 
             // IMPORTANT: stopwords must NOT be included in counts (c1,c2,N)
             if (stop.isStop(lang, w)) return;
 
             // UNI: key (lang,decade,w1, type=0), value tag=0
-            ctx.write(new Job1Key(lang, decade, w, (byte) 0, ""), new Job1Val((byte) 0, yc.count));
+            ctx.write(new Job1Key(lang, decade, w, (byte) 0, ""), new Job1Val((byte) 0, occ));
         }
     }
 
     /** Mapper for bigrams: emits BIGRAM under key with w1, and carries w2 in the key. */
-    public static class Job1BigramMapper extends Mapper<Text, Text, Job1Key, Job1Val> {
+    public static class Job1BigramMapper extends Mapper<LongWritable, Text, Job1Key, Job1Val> {
         private Stopwords stop;
 
         @Override protected void setup(Context ctx) throws IOException {
@@ -147,24 +158,35 @@ public class Job1 {
         }
 
         @Override
-        protected void map(Text bigramKey, Text value, Context ctx) throws IOException, InterruptedException {
+        protected void map(LongWritable off, Text line, Context ctx) throws IOException, InterruptedException {
             String lang = NGramUtils.inferLangFromPath(ctx.getInputSplit());
-            NGramUtils.YearCount yc = NGramUtils.parseYearCount(value);
-            if (yc == null || yc.count <= 0) return;
+             String[] p = line.toString().split("\t");
+        if (p.length < 3) return;
 
-            int decade = NGramUtils.toDecade(yc.year);
-            String[] parts = bigramKey.toString().split(" ");
-            if (parts.length < 2) return;
+        String word = p[0];
+        String[] words = word.split("\\s+");
+        if (words.length < 2) return;
 
-            String w1 = NGramUtils.cleanToken(parts[0]);
-            String w2 = NGramUtils.cleanToken(parts[1]);
+        int year;
+        long occ;
+        try {
+            year = Integer.parseInt(p[1].trim());
+            occ = Long.parseLong(p[2].trim());
+        } catch (Exception e) {
+            return;
+        }
+        if (occ <= 0) return;
+            int decade = NGramUtils.toDecade(year);
+
+            String w1 = NGramUtils.cleanToken(words[0]);
+            String w2 = NGramUtils.cleanToken(words[1]);
             if (w1.isEmpty() || w2.isEmpty()) return;
 
             // Remove all bigrams that contain stopwords (and do not include them in counts)
             if (stop.isStop(lang, w1) || stop.isStop(lang, w2)) return;
 
             // BIGRAM: type=1 comes after UNI in sort, w2 stored in key
-            ctx.write(new Job1Key(lang, decade, w1, (byte) 1, w2), new Job1Val((byte) 1, yc.count));
+            ctx.write(new Job1Key(lang, decade, w1, (byte) 1, w2), new Job1Val((byte) 1, occ));
         }
     }
 
@@ -234,7 +256,7 @@ public class Job1 {
                         // DATA: UNI \t lang \t decade \t w \t c
                         outK.set("UNI");
                         outV.set(gLang + "\t" + gDecade + "\t" + gW1 + "\t" + c1);
-                        mos.write(Constants.MO_DATA, outK, outV);
+                        mos.write(Constants.MO_DATA, outK, outV, "data/part");
 
                         // update N for that (lang,decade)
                         String ld = gLang + "\t" + gDecade;
@@ -263,7 +285,7 @@ public class Job1 {
                     // DATA: P \t lang \t decade \t w2 \t w1 \t c12 \t c1
                     outK.set("P");
                     outV.set(gLang + "\t" + gDecade + "\t" + w2 + "\t" + gW1 + "\t" + c12 + "\t" + c1);
-                    mos.write(Constants.MO_DATA, outK, outV);
+                    mos.write(Constants.MO_DATA, outK, outV, "data/part");
                 }
             }
 
@@ -271,7 +293,7 @@ public class Job1 {
             if (currentGroup != null && c1 > 0) {
                 outK.set("UNI");
                 outV.set(gLang + "\t" + gDecade + "\t" + gW1 + "\t" + c1);
-                mos.write(Constants.MO_DATA, outK, outV);
+                mos.write(Constants.MO_DATA, outK, outV, "data/part");
 
                 String ld = gLang + "\t" + gDecade;
                 NByLangDecade.put(ld, NByLangDecade.getOrDefault(ld, 0L) + c1);
@@ -282,7 +304,7 @@ public class Job1 {
                 // N \t lang \t decade \t N
                 outK.set("N");
                 outV.set(e.getKey() + "\t" + e.getValue());
-                mos.write(Constants.MO_N, outK, outV);
+                mos.write(Constants.MO_N, outK, outV, "N/part");
             }
 
             cleanup(context);

@@ -1,6 +1,8 @@
 package com.collocations;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import java.lang.reflect.Method;
 
 public class NGramUtils {
     public static int toDecade(int year) { return (year / 10) * 10; }
@@ -36,12 +38,44 @@ public class NGramUtils {
         return t.trim().toLowerCase();
     }
 
-    public static String inferLangFromPath(InputSplit split) {
-        try {
-            String p = ((org.apache.hadoop.mapreduce.lib.input.FileSplit) split).getPath().toString().toLowerCase();
-            return p.contains("heb") ? Constants.LANG_HE : Constants.LANG_EN;
-        } catch (Exception e) {
-            return Constants.LANG_EN;
+    // public static String inferLangFromPath(InputSplit split) {
+    //     try {
+    //         String p = ((org.apache.hadoop.mapreduce.lib.input.FileSplit) split).getPath().toString().toLowerCase();
+    //         return p.contains("heb") ? Constants.LANG_HE : Constants.LANG_EN;
+    //     } catch (Exception e) {
+    //         return "Unknown";
+    //     }
+    // }
+
+
+public static String inferLangFromPath(InputSplit split) {
+    try {
+        FileSplit fileSplit = null;
+        
+        if (split instanceof FileSplit) {
+            fileSplit = (FileSplit) split;
+        } 
+        else {
+            Method getInputSplitMethod = split.getClass().getDeclaredMethod("getInputSplit");
+            getInputSplitMethod.setAccessible(true);
+            InputSplit realSplit = (InputSplit) getInputSplitMethod.invoke(split);
+            
+            if (realSplit instanceof FileSplit) {
+                fileSplit = (FileSplit) realSplit;
+            }
         }
+
+        if (fileSplit != null) {
+            String p = fileSplit.getPath().toString().toLowerCase();
+            return p.contains("heb") ? Constants.LANG_HE : Constants.LANG_EN;
+        }
+        
+    } catch (Exception e) {
+        System.err.println("Error inferring language: " + e.getMessage());
+        e.printStackTrace();
     }
+    
+    return "Unknown";
+}
+
 }

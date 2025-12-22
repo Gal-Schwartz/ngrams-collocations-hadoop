@@ -19,23 +19,24 @@ import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+
 public class CollocationExtraction3Jobs extends Configured implements Tool {
 
      @Override
     public int run(String[] args) throws Exception {
-        if (args.length < 7) {
+        if (args.length < 0) {
             System.err.println("Usage:\n" +
-                    "CollocationExtraction3Jobs <eng2> <eng1> <heb2> <heb1> <stop_en> <stop_he> <out>");
+                    "CollocationExtraction3Jobs "); //<eng2> <eng1> <heb2> <heb1>
             return 2;
         }
 
-        String eng2 = args[0];
-        String eng1 = args[1];
-        String heb2 = args[2];
-        String heb1 = args[3];
-        String stopEn = args[4];
-        String stopHe = args[5];
-        String out = args[6];
+     //   String eng2 = args[0];
+      //  String eng1 = args[0];
+        String heb2 = "s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/2gram/data";
+        String heb1 = "s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/1gram/data";
+        String stopEn = "s3://hadoop-counter/eng-stopwords.txt#eng-stopwords.txt";
+        String stopHe = "s3://hadoop-counter/heb-stopwords.txt#heb-stopwords.txt";
+        String out = "s3://hadoop-counter-output";
 
         String job1Root = out + "/tmp_job1";
         String job1Data = job1Root + "/data";
@@ -68,9 +69,9 @@ public class CollocationExtraction3Jobs extends Configured implements Tool {
         MultipleOutputs.addNamedOutput(job1, Constants.MO_N, TextOutputFormat.class, Text.class, Text.class);
 
         // Inputs: SequenceFiles
-        MultipleInputs.addInputPath(job1, new Path(eng1), SequenceFileInputFormat.class, Job1.Job1UnigramMapper.class);
+       // MultipleInputs.addInputPath(job1, new Path(eng1), SequenceFileInputFormat.class, Job1.Job1UnigramMapper.class);
         MultipleInputs.addInputPath(job1, new Path(heb1), SequenceFileInputFormat.class, Job1.Job1UnigramMapper.class);
-        MultipleInputs.addInputPath(job1, new Path(eng2), SequenceFileInputFormat.class, Job1.Job1BigramMapper.class);
+      //  MultipleInputs.addInputPath(job1, new Path(eng2), SequenceFileInputFormat.class, Job1.Job1BigramMapper.class);
         MultipleInputs.addInputPath(job1, new Path(heb2), SequenceFileInputFormat.class, Job1.Job1BigramMapper.class);
 
         // Base output path for MultipleOutputs
