@@ -4,11 +4,14 @@ package com.collocations;
  import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
+
+import java.io.FileInputStream; 
+import java.io.InputStreamReader; 
+import java.nio.charset.StandardCharsets; 
  
  /**
   * Stopwords loader and checker.
@@ -27,9 +30,11 @@ public class Stopwords {
                 else if (name.equals("heb-stopwords.txt")) target = he;
                 else continue;
                 String localName = (u.getFragment() != null) ? u.getFragment() : new Path(u.getPath()).getName();
-                try (BufferedReader br = new BufferedReader(new FileReader(localName))) {
+                try (BufferedReader br = new BufferedReader(
+        new InputStreamReader(new FileInputStream(localName), StandardCharsets.UTF_8))) {
                     String line;
                     while ((line = br.readLine()) != null) {
+                        line = line.replace("\uFEFF", ""); 
                         line = line.trim().toLowerCase();
                         if (!line.isEmpty() && !line.startsWith("#")) target.add(line);
                     }

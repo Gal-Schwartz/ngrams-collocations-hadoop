@@ -24,14 +24,10 @@ public class CollocationExtraction3Jobs extends Configured implements Tool {
 
      @Override
     public int run(String[] args) throws Exception {
-        if (args.length < 0) {
-            System.err.println("Usage:\n" +
-                    "CollocationExtraction3Jobs "); //<eng2> <eng1> <heb2> <heb1>
-            return 2;
-        }
+        
 
-     //   String eng2 = args[0];
-      //  String eng1 = args[0];
+        String eng2 = "s3://datasets.elasticmapreduce/ngrams/books/20090715/eng-gb-all/2gram/data";
+        String eng1 = "s3://datasets.elasticmapreduce/ngrams/books/20090715/eng-gb-all/1gram/data";
         String heb2 = "s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/2gram/data";
         String heb1 = "s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/1gram/data";
         String stopEn = "s3://hadoop-counter/eng-stopwords.txt#eng-stopwords.txt";
@@ -69,9 +65,9 @@ public class CollocationExtraction3Jobs extends Configured implements Tool {
         MultipleOutputs.addNamedOutput(job1, Constants.MO_N, TextOutputFormat.class, Text.class, Text.class);
 
         // Inputs: SequenceFiles
-       // MultipleInputs.addInputPath(job1, new Path(eng1), SequenceFileInputFormat.class, Job1.Job1UnigramMapper.class);
+        MultipleInputs.addInputPath(job1, new Path(eng1), SequenceFileInputFormat.class, Job1.Job1UnigramMapper.class);
         MultipleInputs.addInputPath(job1, new Path(heb1), SequenceFileInputFormat.class, Job1.Job1UnigramMapper.class);
-      //  MultipleInputs.addInputPath(job1, new Path(eng2), SequenceFileInputFormat.class, Job1.Job1BigramMapper.class);
+        MultipleInputs.addInputPath(job1, new Path(eng2), SequenceFileInputFormat.class, Job1.Job1BigramMapper.class);
         MultipleInputs.addInputPath(job1, new Path(heb2), SequenceFileInputFormat.class, Job1.Job1BigramMapper.class);
 
         // Base output path for MultipleOutputs

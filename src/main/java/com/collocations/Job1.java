@@ -117,6 +117,7 @@ public class Job1 {
             stop = new Stopwords();
             stop.loadFromCache(ctx);
             System.err.println("Job1: UnigramMapper setup complete. Loaded Stopwords.");
+            System.out.println("Stopwords loaded: EN=" + stop.en.size() + " HE=" + stop.he.size());
         }
 
         @Override
@@ -155,6 +156,8 @@ public class Job1 {
         @Override protected void setup(Context ctx) throws IOException {
             stop = new Stopwords();
             stop.loadFromCache(ctx);
+            System.out.println("Stopwords loaded: EN=" + stop.en.size() + " HE=" + stop.he.size());
+
         }
 
         @Override
