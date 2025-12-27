@@ -14,6 +14,7 @@ For a bigram (w1, w2) in a given language and decade, LLR requires:
 - N: total number of unigrams in that language and decade (after stopword filtering)
 
 The solution is explicitly designed to operate under strict scalability constraints, without assuming that any large subset of the data can fit in memory.
+
 ---
 
 ## Key Design Principle: Streaming Joins with Secondary Sort
@@ -293,7 +294,7 @@ EMR eliminates the need to install or configure Hadoop manually.
 We chose Hardware configuration:
    - **Master node**: `m4.large`
    - **Core nodes**: 2
-Use default networking and the `EMR_DefaultRole` IAM role.
+- Use default networking and the `EMR_DefaultRole` IAM role.
 
 ### Upload Files to S3
 All inputs and outputs must be stored in Amazon S3.
@@ -303,14 +304,14 @@ Upload:
 - The compiled JAR
 
 structure:
-s3://datasets.elasticmapreduce/ngrams/books/20090715/eng-gb-all/2gram/data - Public Datasets
-s3://datasets.elasticmapreduce/ngrams/books/20090715/eng-gb-all/1gram/data - Public Datasets
-s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/2gram/data - Public Datasets
-s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/1gram/data - Public Datasets
-s3://hadoop-counter/eng-stopwords.txt
-s3://hadoop-counter/heb-stopwords.txt
-s3://hadoop-counter/collocations.jar
-s3://hadoop-counter-output
+- s3://datasets.elasticmapreduce/ngrams/books/20090715/eng-gb-all/2gram/data - Public Datasets
+- s3://datasets.elasticmapreduce/ngrams/books/20090715/eng-gb-all/1gram/data - Public Datasets
+- s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/2gram/data - Public Datasets
+- s3://datasets.elasticmapreduce/ngrams/books/20090715/heb-all/1gram/data - Public Datasets
+- s3://hadoop-counter/eng-stopwords.txt
+- s3://hadoop-counter/heb-stopwords.txt
+- s3://hadoop-counter/collocations.jar
+- s3://hadoop-counter-output
 
 ### Run the Job
 1. Add a **Step** to the EMR cluster.
