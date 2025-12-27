@@ -1,5 +1,12 @@
 # Collocation Extraction using MapReduce  
 
+### Authors
+
+- Gal Schwartz – 322271891  
+- Dina Gurevich – 322405911
+
+---
+
 ## Problem Overview
 
 The goal of this assignment is to extract statistically significant **word collocations** from a very large corpus (Google N-Grams) using a scalable MapReduce pipeline. 
